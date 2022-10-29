@@ -1,16 +1,18 @@
 import random
+import csv
+
 table = []
 N_SIMULATION = 100
 N_YEARS = 100
+N_GRACE = 5
 REQUIRED_RET = 5000
 INITIAL_AMT = 20000
 
 if (__name__ == '__main__'):
-    with open('input.txt', mode='r') as file:
-        for line in file:
-            table.append([float(x) for x in line.split()])
-
-    print(len(table))
+    with open('../data.csv', newline='') as file:
+        # Skip first line (headers)
+        next(file, None)
+        table = list(csv.reader(file, delimiter=',', quoting=csv.QUOTE_NONNUMERIC))
 
     cnt = 0
 
@@ -24,7 +26,6 @@ if (__name__ == '__main__'):
 
             for yr in range(N_YEARS):
                 if money <= 0:
-                    # print('Failed')
                     failed = True
                     break
 
@@ -37,30 +38,18 @@ if (__name__ == '__main__'):
                 dividends = div_rate * money
                 money *= ret_rate + div_rate
 
-                if yr > 4:
+                if yr >= N_GRACE:
                     money -= REQUIRED_RET
 
                 avg_ret += ret_rate
                 avg_div += div_rate
 
                 data.append(money)
-
-                # print('Year       \t' + str(i+1))
-                # print('Initial    \t' + str(money))
-                # print('Growth Rate\t' + str(ret_rate))
-                # print('Div Rate   \t' + str(div_rate))
-                # print('Dividend   \t' + str(dividends))
-                # print('Deficit    \t' + str(REQUIRED_RET - dividends))
-                # print('New        \t' + str(money))
-                # print('\n')
+                file.write(str(round(money, 4)) + ' ')
 
             if not failed:
-                print("Average Return Rate: " + str(avg_ret / N_YEARS))
-                print("Average Div Rate: " + str(avg_div / N_YEARS))
                 cnt += 1
 
-            for val in data:
-                file.write(str(round(val, 3)) + ' ')
             file.write('\n')
 
     print("Sucess: " + str(cnt) + '/' + str(N_SIMULATION))
